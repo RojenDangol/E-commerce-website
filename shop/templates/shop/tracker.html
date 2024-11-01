@@ -74,6 +74,7 @@ $('#trackerForm').submit(function(event) {
                 $('#items').append(mystr);
             }
             // fill in the order details
+            // here data[1] is a string so we need to parse it again 
             cart = JSON.parse(data[1]);
             console.log(cart)
             for (item in cart) {
