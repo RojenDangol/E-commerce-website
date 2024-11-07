@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.hashers import make_password, check_password
 # Create your models here.
 
 class Product(models.Model):
@@ -49,3 +49,42 @@ class OrderUpdate(models.Model):
 
     def __str__(self):
         return self.update_desc[0:7] + "..."
+
+
+# class User(models.Model):
+#     user_id = models.AutoField(primary_key=True)
+#     firstName = models.CharField(max_length=50, default="")
+#     lastName = models.CharField(max_length=50, default="")
+#     username = models.CharField(max_length=50, default="")
+#     password = models.CharField(max_length=50)
+#     email = models.CharField(max_length=50, default="")
+#     phone = models.CharField(max_length=50, default="")
+#     address = models.CharField(max_length=111)
+
+#     def __str__(self):
+#         return self.username
+
+class UserProfile(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    firstName = models.CharField(max_length=50, default="")
+    lastName = models.CharField(max_length=50, default="")
+    username = models.CharField(max_length=50, default="")
+    password = models.CharField(max_length=255)  # Increase the length for hashed password
+    email = models.CharField(max_length=50, default="")
+    phone = models.CharField(max_length=50, default="")
+    address = models.CharField(max_length=111)
+
+    def __str__(self):
+        return self.username
+
+    def set_password(self, raw_password):
+        """
+        Hash the password before saving it.
+        """
+        self.password = make_password(raw_password)
+
+    def check_password(self, raw_password):
+        """
+        Verify the password by comparing the raw password with the stored hash.
+        """
+        return check_password(raw_password, self.password)

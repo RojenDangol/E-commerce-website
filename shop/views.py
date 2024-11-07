@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from math import ceil
-from .models import Product, Contact, Orders, OrderUpdate
+from .models import Product, Contact, Orders, OrderUpdate, UserProfile
 import json
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 def index(request):
@@ -58,7 +60,7 @@ def search(request):
 def about(request):
     return render(request, "shop/about.html")
 
-
+# @login_required
 def contact(request):
     success = False
     if request.method == "POST":
@@ -72,7 +74,7 @@ def contact(request):
     return render(request, 'shop/contact.html',{'success': success})
     # return render(request, "shop/contact.html", )
 
-
+# @login_required
 def tracker(request):
     if request.method == "POST":
         orderId = request.POST.get('orderId', '')
@@ -98,8 +100,9 @@ def prodView(request,myid):
     product = Product.objects.filter(id=myid)
     return render(request, "shop/prodView.html", {'product': product[0]})
 
-
+# @login_required
 def checkout(request):
+    thank = False
     if request.method == "POST":
         items_json = request.POST.get('itemsJson', '')
         name = request.POST.get('name', '')
@@ -117,7 +120,7 @@ def checkout(request):
         update.save()
         thank = True
         id = order.order_id
-        return render(request, "shop/checkout.html", {'thank': thank, 'id':id})
+        return render(request, "shop/checkout.html", {'thank': thank, 'id': id})
     #     Request paytm to transfer the amount to your account after paytm by user
     return render(request, "shop/checkout.html")
 
@@ -125,3 +128,55 @@ def checkout(request):
 def handlerequest(request):
     # paytm will send you post request here
     pass
+
+
+def registerUser(request):
+    taken = False
+    reg = False
+    if request.method == "POST":
+        fname = request.POST.get('firstName', '')
+        lname = request.POST.get('lastName', '')
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        email = request.POST.get('email', '')
+        address = request.POST.get('address', '')
+        phone = request.POST.get('phone', '')
+        users = UserProfile.objects.filter(username=username)
+        # print(users)
+        if len(users) > 0:
+            taken = True
+            return render(request, "shop/register.html", {'taken':taken, 'msg': 'Username already taken. Please enter another one.'})
+        else:
+            register = UserProfile(firstName=fname, lastName=lname, username=username, email=email,
+                            phone=phone, address=address)
+            register.set_password(password)
+            register.save()
+            reg = True
+            return render(request, "shop/register.html", {'reg': reg})
+    return render(request, "shop/register.html")
+
+
+def login_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email', '')
+        password = request.POST.get('password', '')
+
+        # Find the user by email
+        user = UserProfile.objects.filter(email=email).first()
+
+        if user and user.check_password(password):
+            login(request, user)
+            validUser = True
+            return render(request, "shop/login.html", {'validUser': validUser})
+        else:
+            validUser = False
+            return render(request, "shop/login.html", {'validUser': validUser})
+
+    return render(request, "shop/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('/shop/')
+
+
