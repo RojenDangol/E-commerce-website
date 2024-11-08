@@ -26,9 +26,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/shop/about">About Us</a>
                 </li>
+                {% if request.user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link" href="/shop/tracker">Tracker</a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="/blog">Blog</a>
                 </li>
@@ -44,7 +46,7 @@
         sagittis lacus vel augue laoreet rutrum faucibus.">
                 Cart(<span id="cart">0</span>)
             </button>
-            {% if user.is_authenticated %}
+            {% if request.user.is_authenticated %}
 <!--                <a href="/shop/login/"><button type="button" class="btn btn-outline-success">Profile</button></a>-->
             <a href="/shop/logout"><button type="button" class="btn btn-outline-danger" fdprocessedid="olcflm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
@@ -58,6 +60,16 @@
             {% endif %}
         </div>
     </nav>
+
+<!--    for flash messages -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     {% block body %} {% endblock %}
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

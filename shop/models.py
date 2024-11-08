@@ -1,5 +1,8 @@
+import uuid
 from django.db import models
+from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password, check_password
+
 # Create your models here.
 
 class Product(models.Model):
@@ -64,27 +67,45 @@ class OrderUpdate(models.Model):
 #     def __str__(self):
 #         return self.username
 
-class UserProfile(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    firstName = models.CharField(max_length=50, default="")
-    lastName = models.CharField(max_length=50, default="")
-    username = models.CharField(max_length=50, default="")
-    password = models.CharField(max_length=255)  # Increase the length for hashed password
-    email = models.CharField(max_length=50, default="")
+# class UserProfile(models.Model):
+#     user_id = models.AutoField(primary_key=True)
+#     firstName = models.CharField(max_length=50, default="")
+#     lastName = models.CharField(max_length=50, default="")
+#     username = models.CharField(max_length=50, default="")
+#     password = models.CharField(max_length=255)  # Increase the length for hashed password
+#     email = models.CharField(max_length=50, default="")
+#     phone = models.CharField(max_length=50, default="")
+#     address = models.CharField(max_length=111)
+#
+#     def __str__(self):
+#         return self.username
+#
+#     def set_password(self, raw_password):
+#         """
+#         Hash the password before saving it.
+#         """
+#         self.password = make_password(raw_password)
+#
+#     def check_password(self, raw_password):
+#         """
+#         Verify the password by comparing the raw password with the stored hash.
+#         """
+#         return check_password(raw_password, self.password)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    firstname = models.CharField(max_length=200, blank=True, null=True)
+    lastname = models.CharField(max_length=200, blank=True, null=True)
+    username = models.CharField(max_length=200, blank=True, null=True)
+    email = models.EmailField(max_length=500, blank=True, null=True)
     phone = models.CharField(max_length=50, default="")
-    address = models.CharField(max_length=111)
+    address = models.CharField(max_length=111, default="")
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=True)
 
     def __str__(self):
-        return self.username
+        return str(self.username)
 
-    def set_password(self, raw_password):
-        """
-        Hash the password before saving it.
-        """
-        self.password = make_password(raw_password)
 
-    def check_password(self, raw_password):
-        """
-        Verify the password by comparing the raw password with the stored hash.
-        """
-        return check_password(raw_password, self.password)
+

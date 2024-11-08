@@ -1,12 +1,17 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from math import ceil
-from .models import Product, Contact, Orders, OrderUpdate, UserProfile
+from .models import Product, Contact, Orders, OrderUpdate, Profile
 import json
 from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
+
+from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+from .forms import CustomUserCreationForm
+# from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 def index(request):
@@ -60,7 +65,8 @@ def search(request):
 def about(request):
     return render(request, "shop/about.html")
 
-# @login_required
+
+@login_required
 def contact(request):
     success = False
     if request.method == "POST":
@@ -74,7 +80,8 @@ def contact(request):
     return render(request, 'shop/contact.html',{'success': success})
     # return render(request, "shop/contact.html", )
 
-# @login_required
+
+@login_required
 def tracker(request):
     if request.method == "POST":
         orderId = request.POST.get('orderId', '')
@@ -100,7 +107,8 @@ def prodView(request,myid):
     product = Product.objects.filter(id=myid)
     return render(request, "shop/prodView.html", {'product': product[0]})
 
-# @login_required
+
+@login_required
 def checkout(request):
     thank = False
     if request.method == "POST":
@@ -124,59 +132,103 @@ def checkout(request):
     #     Request paytm to transfer the amount to your account after paytm by user
     return render(request, "shop/checkout.html")
 
-@csrf_exempt
-def handlerequest(request):
-    # paytm will send you post request here
-    pass
+# @csrf_exempt
+# def handlerequest(request):
+#     # paytm will send you post request here
+#     pass
 
 
-def registerUser(request):
-    taken = False
-    reg = False
-    if request.method == "POST":
-        fname = request.POST.get('firstName', '')
-        lname = request.POST.get('lastName', '')
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
-        email = request.POST.get('email', '')
-        address = request.POST.get('address', '')
-        phone = request.POST.get('phone', '')
-        users = UserProfile.objects.filter(username=username)
-        # print(users)
-        if len(users) > 0:
-            taken = True
-            return render(request, "shop/register.html", {'taken':taken, 'msg': 'Username already taken. Please enter another one.'})
-        else:
-            register = UserProfile(firstName=fname, lastName=lname, username=username, email=email,
-                            phone=phone, address=address)
-            register.set_password(password)
-            register.save()
-            reg = True
-            return render(request, "shop/register.html", {'reg': reg})
-    return render(request, "shop/register.html")
+# def registerUser(request):
+#     taken = False
+#     reg = False
+#     if request.method == "POST":
+#         fname = request.POST.get('firstName', '')
+#         lname = request.POST.get('lastName', '')
+#         username = request.POST.get('username', '')
+#         password = request.POST.get('password', '')
+#         email = request.POST.get('email', '')
+#         address = request.POST.get('address', '')
+#         phone = request.POST.get('phone', '')
+#         users = Profile.objects.filter(username=username)
+#         # print(users)
+#         if len(users) > 0:
+#             taken = True
+#             return render(request, "shop/register.html", {'taken': taken, 'msg': 'Username already taken. Please enter another one.'})
+#         else:
+#             user = Profile(firstName=fname, lastName=lname, username=username, email=email, phone=phone, address=address)
+#             user.set_password(password)
+#             user.save()
+#             reg = True
+#             return render(request, "shop/register.html", {'reg': reg})
+#     return render(request, "shop/register.html")
 
+
+# def login_view(request):
+#     if request.method == "POST":
+#         username = request.POST.get('username', '')
+#         password = request.POST.get('password', '')
+#
+#         # Find the user by email
+#         user = Profile.objects.filter(username=username).first()
+#         # user = authenticate(request, email=email, password=password)
+#
+#         if user and user.check_password(password):
+#             # login(request, user)
+#             validUser = True
+#             return render(request, "shop/login.html", {'validUser': validUser})
+#         else:
+#             validUser = False
+#             return render(request, "shop/login.html", {'validUser': validUser})
+#
+#     return render(request, "shop/login.html")
 
 def login_view(request):
-    if request.method == "POST":
-        email = request.POST.get('email', '')
+
+    page = 'login'
+
+    if request.user.is_authenticated:
+        return redirect('/shop')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '')
         password = request.POST.get('password', '')
 
-        # Find the user by email
-        user = UserProfile.objects.filter(email=email).first()
+        try:
+            user = User.objects.get(username=username)
+        except:
+            messages.error(request, 'username does not exist')
 
-        if user and user.check_password(password):
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
             login(request, user)
-            validUser = True
-            return render(request, "shop/login.html", {'validUser': validUser})
+            return redirect('/shop')
         else:
-            validUser = False
-            return render(request, "shop/login.html", {'validUser': validUser})
+            messages.error(request,"Username or Password is incorrect")
 
-    return render(request, "shop/login.html")
+    return render(request, 'shop/login.html')
 
 
 def logout_view(request):
     logout(request)
+    messages.info(request, 'User was successfully logout')
     return redirect('/shop/')
 
 
+def registerUser(request):
+    page = 'register'
+    form = CustomUserCreationForm()
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+
+            messages.success(request, 'User Successfully Registered.')
+
+            login(request, user)
+            return redirect('/shop')
+        else:
+            messages.error(request, 'An Error Occurred During Registration.')
+    context = {'page': page, 'form': form}
+    return render(request, 'shop/login.html', context)

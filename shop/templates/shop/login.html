@@ -1,12 +1,107 @@
 {% extends 'shop/basic.html' %}
 {% block title %}My Awesome Cart {% endblock %}
 {% block body %}
+
+{% if page == 'register' %}
+<h1 class="text-center">Register</h1>
+<div class="container mt-3">
+    <form class="needs-validation" novalidate method="post" action="/shop/register/">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="firstName">{{ form.first_name.label }}</label>
+                {{ form.first_name }}
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="lastName">{{ form.last_name.label }}</label>
+                {{ form.last_name }}
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+
+        </div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label for="email">{{ form.email.label }}</label>
+                {{ form.email }}
+                <div class="invalid-feedback">
+                    Please provide a valid Email.
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="username">{{ form.username.label }}</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                    </div>
+                    {{ form.username }}
+                    <div class="invalid-feedback">
+                        Please choose a username.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+
+            <div class="col-md-6 mb-3">
+                <label for="password">{{ form.password1.label }}</label>
+                {{ form.password1 }}
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="password">{{ form.password2.label }}</label>
+                {{ form.password2 }}
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
+                <label class="form-check-label" for="invalidCheck">
+                    Agree to terms and conditions
+                </label>
+                <div class="invalid-feedback">
+                    You must agree before submitting.
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit form</button>
+    </form>
+</div>
+<!--<div class="container mt-3">-->
+<!--<form action="/shop/register/" method="post">-->
+<!--    {% csrf_token %}-->
+<!--    {% for field in form %}-->
+<!--    <div class="form-row">-->
+<!--        <div class="col-md-5 mb-3">-->
+<!--                <label>{{field.label}}</label>-->
+<!--&lt;!&ndash;                <input type="text" class="form-control" name="firstName" id="firstName" placeholder="First name"  required>&ndash;&gt;-->
+<!--            {{field}}-->
+<!--                <div class="valid-feedback">-->
+<!--                    Looks good!-->
+<!--                </div>-->
+<!--            </div>-->
+<!--    </div>-->
+<!--    {% endfor %}-->
+<!--    <input type="submit" value="Register User">-->
+<!--</form>-->
+<!--</div>-->
+{% else %}
 <div class="container mt-3">
     <form action="/shop/login/" method="post">
         {% csrf_token %}
         <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" class="form-control" name="email" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" name="username" id="username" aria-describedby="emailHelp" placeholder="Enter username">
             <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
         </div>
         <div class="form-group">
@@ -18,14 +113,34 @@
     </form>
     <a href="/shop/register/"><button type="submit" class="btn btn-success mt-3">Create New Account</button></a>
 </div>
+{% endif %}
 {% endblock %}
 {% block js %}
 <script>
-{% if validUser %}
-    alert('Login Successful!');
-    document.location = "/shop";
-{% elif validUser == False %}
-    alert('Please give valid credientials!');
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+{% if reg %}
+    alert('Registration Successful!');
+    document.location = "/shop/login/";
+{% elif taken %}
+    alert('{{msg}}');
 {% endif %}
 </script>
 {% endblock %}
