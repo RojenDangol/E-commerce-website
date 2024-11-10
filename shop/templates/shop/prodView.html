@@ -9,38 +9,23 @@
             </div>
         </div>
         <div class="col-md-8">
-            <h5>{{product.product_name}}</h5>
-            <p><strong>Rs. {{product.price}}</strong></p>
+            <h5 id="namepr{{product.id}}">{{product.product_name}}</h5>
+            <p><strong>Rs. <span id="pricepr{{product.id}}">{{product.price}}</span></h6></strong></p>
             <p>{{product.desc}}</p>
+            <div class="quantity-selector">
+                <button id="minus" class="btn btn-primary">-</button>
+                <span id="quantity" class="quantity-value">1</span>
+                <button id="plus" class="btn btn-primary">+</button>
+            </div>
             <div class="row">
                 <button class="btn btn-primary mx-2 my-2">Buy Now</button>
-                <button class="btn btn-primary mx-2 my-2">Add to Cart</button>
+                <span id="divpr{{product.id}}" class="divpr mx-2 my-2">
+                    <button id="pr{{product.id}}" class="btn btn-primary cart">Add to Cart</button>
+                </span>
             </div>
         </div>
     </div>
 </div>
 {% block js %}
-<script>
-if (localStorage.getItem('cart') == null) {
-    var cart = {};
-} else {
-    cart = JSON.parse(localStorage.getItem('cart'));
-    document.getElementById('cart').innerHTML = Object.keys(cart).length;
-}
-$('.cart').click(function() {
-    var idstr = this.id.toString();
-    if (cart[idstr] != undefined) {
-        cart[idstr] = cart[idstr] + 1;
-    } else {
-        cart[idstr] = 1;
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    <!--   retrieves no. of items in cart and displays in cart number     -->
-    document.getElementById('cart').innerHTML = Object.keys(cart).length;
-});
-$('#popcart').popover();
-
-document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items</h5>');
-</script>
 {% endblock %}
 {% endblock %}

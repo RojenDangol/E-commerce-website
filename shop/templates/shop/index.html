@@ -74,6 +74,7 @@ height:35px;
                                 <h6 class="card-text">Rs. <span id="pricepr{{i.id}}">{{i.price}}</span></h6>
                                 <span id="divpr{{i.id}}" class="divpr">
                                     <button id="pr{{i.id}}" class="btn btn-primary cart">Add to Cart</button>
+                                    
                                 </span>
                                 <a href="/shop/products/{{i.id}}"><button id="qv{{i.id}}" class="btn btn-primary cart">Quick View</button></a>
                             </div>
@@ -161,6 +162,7 @@ function updateCart(cart) {
     var sum = 0;
     // console.log(cart)
     for (var item in cart) {
+        console.log(item)
         sum = sum + cart[item][0];
         document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "'class='btn btn-primary minus'>-</button> <span id='val" + item + "''>" + cart[item][0] + "</span> <button id='plus" + item + "'class='btn btn-primary plus'> + </button>";
     }

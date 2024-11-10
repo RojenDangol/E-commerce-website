@@ -25,17 +25,17 @@
     </form>
 </div>
 {% block js %}
-<script>
-{% if success %}
-    alert('Thank you for feedback.');
-    document.location = "/shop/contact";
-{% endif %}
-$(document).ready(function() {
-    if ($('#popcart').length) {
-        $('#popcart').popover();
-        $('#popcart').attr('data-content', '<h5>Cart for your items</h5>');
-    }
-});
-</script>
+<!--<script>-->
+<!--{% if success %}-->
+<!--    alert('Thank you for feedback.');-->
+<!--    document.location = "/shop/contact";-->
+<!--{% endif %}-->
+<!--$(document).ready(function() {-->
+<!--    if ($('#popcart').length) {-->
+<!--        $('#popcart').popover();-->
+<!--        $('#popcart').attr('data-content', '<h5>Cart for your items</h5>');-->
+<!--    }-->
+<!--});-->
+<!--</script>-->
 {% endblock %}
 {% endblock %}

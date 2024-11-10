@@ -1,0 +1,117 @@
+{% extends 'shop/basic.html' %}
+{% block title %}{{product.product_name}} View{% endblock %}
+{% block body %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="row">
+                <img src="/media/{{product.image}}" alt="image" width="233px" height="385px">
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h5 id="namepr{{product.id}}">{{product.product_name}}</h5>
+            <p><strong>Rs. <span id="pricepr{{product.id}}">{{product.price}}</span></h6></strong></p>
+            <p>{{product.desc}}</p>
+            <div class="quantity-selector">
+                <button id="minus" class="btn btn-primary">-</button>
+                <span id="quantity" class="quantity-value">1</span>
+                <button id="plus" class="btn btn-primary">+</button>
+            </div>
+            <div class="row">
+                <button class="btn btn-primary mx-2 my-2">Buy Now</button>
+                <span id="divpr{{product.id}}" class="divpr">
+                    <button id="pr{{product.id}}" class="btn btn-primary cart">Add to Cart</button>
+                </span>
+                <!-- <button class="btn btn-primary mx-2 my-2">Add to Cart</button> -->
+            </div>
+        </div>
+    </div>
+</div>
+{% block js %}
+<script>
+// find out the cart items from localStorage
+if (localStorage.getItem('cart') == null) {
+    var cart = {};
+} else {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    updateCart(cart);
+}
+
+// if add to cart button is clicked, add/ increment the item
+// $('.cart').click(function() {
+$('.divpr').on('click', 'button.cart', function() {
+    var idstr = this.id.toString();
+    console.log(idstr);
+    if (cart[idstr] != undefined) {
+        qty = cart[idstr][0] + 1;
+    } else {
+        qty = 1;
+        name = document.getElementById('name' + idstr).innerHTML;
+        price = document.getElementById('price' + idstr).innerHTML;
+        cart[idstr] = [qty, name, parseInt(price)];
+    }
+    updateCart(cart);
+});
+
+// add popovet to cart
+$('#popcart').popover();
+// document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items</h5>');
+
+updatePopover(cart);
+
+function updatePopover(cart) {
+    // console.log("we are inside updatePopover");
+    var popStr = "";
+    popStr = popStr + "<h5>Cart for your items</h5> <div class='mx-2 my-2'>";
+    var i = 1;
+    for (var item in cart) {
+        popStr = popStr + "<b>" + i + "</b>. ";
+        popStr = popStr + document.getElementById('name' + item).innerHTML.slice(0, 19) + "... Qty: " + cart[item][0] + "<br>";
+        i++;
+
+    }
+    popStr = popStr + "</div> <a href='/shop/checkout'><button class='btn btn-primary' id='checkout'>Checkout</button></a> <button class='btn btn-primary' onclick='clearCart()' id='clearCart'>Clear Cart</button>";
+    document.getElementById('popcart').setAttribute('data-content', popStr);
+    $('#popcart').popover('show');
+
+}
+
+function clearCart(argument) {
+    cart = JSON.parse(localStorage.getItem('cart'));
+    for (var item in cart) {
+        document.getElementById('div' + item).innerHTML = '<button id="' + item + '" class="btn btn-primary cart">Add to Cart</button>';
+    }
+    localStorage.clear();
+    cart = {};
+    updateCart(cart);
+}
+
+function updateCart(cart) {
+    var sum = 0;
+    console.log(cart)
+    localStorage.setItem('cart', JSON.stringify(cart));
+    // retrieves no. of items in cart and displays in cart number
+    document.getElementById('cart').innerHTML = sum;
+    // console.log(cart);
+    updatePopover(cart);
+}
+
+
+document.getElementById("plus").addEventListener("click", function() {
+    var quantityElement = document.getElementById("quantity");
+    var currentValue = parseInt(quantityElement.innerHTML);
+    quantityElement.innerHTML = currentValue + 1; // Increase the value by 1
+});
+
+document.getElementById("minus").addEventListener("click", function() {
+    var quantityElement = document.getElementById("quantity");
+    var currentValue = parseInt(quantityElement.innerHTML);
+    if (currentValue > 1) {
+        quantityElement.innerHTML = currentValue - 1; // Decrease the value by 1
+    }
+});
+
+
+</script>
+{% endblock %}
+{% endblock %}

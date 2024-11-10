@@ -77,6 +77,7 @@ def contact(request):
         contact = Contact(name=name, email=email, phone=phone, desc=desc)
         contact.save()
         success = True
+        messages.success(request, "Thank you for your feedback.")
     return render(request, 'shop/contact.html',{'success': success})
     # return render(request, "shop/contact.html", )
 
@@ -127,7 +128,8 @@ def checkout(request):
         update = OrderUpdate(order_id=order.order_id, update_desc="The order has been placed")
         update.save()
         thank = True
-        id = order.order_id
+        id = str(order.order_id)
+        messages.warning(request, "Thanks for ordering with us. Your order id is"+id+". Use it to track your order using our tracker.")
         return render(request, "shop/checkout.html", {'thank': thank, 'id': id})
     #     Request paytm to transfer the amount to your account after paytm by user
     return render(request, "shop/checkout.html")
@@ -196,21 +198,22 @@ def login_view(request):
         try:
             user = User.objects.get(username=username)
         except:
-            messages.error(request, 'username does not exist')
+            messages.warning(request, 'username does not exist')
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            messages.success(request,"Welcome to My Awesome Cart.")
             return redirect('/shop')
         else:
-            messages.error(request,"Username or Password is incorrect")
+            messages.warning(request,"Username or Password is incorrect")
 
     return render(request, 'shop/login.html')
 
 
 def logout_view(request):
     logout(request)
-    messages.info(request, 'User was successfully logout')
+    messages.info(request, 'Logged out successfully.')
     return redirect('/shop/')
 
 
